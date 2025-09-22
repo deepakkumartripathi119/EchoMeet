@@ -36,16 +36,16 @@ var AppProcess = (function () {
 
       if (isAudioMute) {
         audio.enabled = true;
-        $(this).html(
-          "<span class='material-icons' style=`width: 100%;`>mic</span>"
-        );
+        // Show mic icon (unmuted)
+        $(this).find(".material-icons").text("mic");
+        // Add audio track to all connections
         updateMediaSenders(audio, rtp_aud_senders);
       } else {
         audio.enabled = false;
-        $(this).html(
-          "<span class='material-icons' style=`width: 100%;`>mic_off</span>"
-        );
-        removeMediaSenders(rtp_aud_senders);
+        // Show mic_off icon (muted)
+        $(this).find(".material-icons").text("mic_off");
+        // Remove audio track from all connections
+        updateMediaSenders(null, rtp_aud_senders);
       }
       isAudioMute = !isAudioMute;
     });
@@ -93,11 +93,15 @@ var AppProcess = (function () {
 
   async function updateMediaSenders(track, rtp_senders) {
     for (var con_id in peers_connection_ids) {
-      console.log(connection_status(peers_connection[con_id]));
       if (connection_status(peers_connection[con_id])) {
-        if (rtp_senders[con_id] && rtp_senders[con_id].track) {
-          rtp_senders[con_id].replaceTrack(track);
-        } else {
+        if (rtp_senders[con_id]) {
+          if (track) {
+            rtp_senders[con_id].replaceTrack(track);
+          } else {
+            peers_connection[con_id].removeTrack(rtp_senders[con_id]);
+            rtp_senders[con_id] = null;
+          }
+        } else if (track) {
           rtp_senders[con_id] = peers_connection[con_id].addTrack(track);
         }
       }
@@ -458,9 +462,91 @@ var MyApp = (function () {
   }
 
   function eventHandeling() {
-    $("#btnsend").on("click", function () {
+    // Attachment button in bottom right opens only the attachment popup
+    $(document).on("click", "#attachmentBtn", function (e) {
+      e.stopPropagation();
+      $("#attachmentPopup").toggle();
+      $("#meetingDetailsPopup").hide();
+    });
+    // Meeting details button in bottom left opens only the meeting details popup
+    $(document).on("click", ".controls-left .meet-control-btn[title='Meeting details']", function (e) {
+      e.stopPropagation();
+      $("#meetingDetailsPopup").toggle();
+      $("#attachmentPopup").hide();
+    });
+    // Hide popups if click outside
+    $(document).mouseup(function (e) {
+      var attach = $("#attachmentPopup");
+      var meet = $("#meetingDetailsPopup");
+      if (!attach.is(e.target) && attach.has(e.target).length === 0) {
+        attach.hide();
+      }
+      if (!meet.is(e.target) && meet.has(e.target).length === 0) {
+        meet.hide();
+      }
+    });
+    // --- New UI wiring for Let'sConnect Google Meet-like layout ---
+    // Sidebar open/close
+    $(document).on("click", ".meet-header-btn[title='People']", function () {
+      $(".meet-sidebar").show();
+      $(".sidebar-people").show();
+      $(".sidebar-chat").hide();
+      $(".sidebar-tab").removeClass("active").eq(0).addClass("active");
+    });
+    $(document).on("click", ".meet-header-btn[title='Chat']", function () {
+      $(".meet-sidebar").show();
+      $(".sidebar-people").hide();
+      $(".sidebar-chat").show();
+      $(".sidebar-tab").removeClass("active").eq(1).addClass("active");
+    });
+    $(document).on("click", ".sidebar-close", function () {
+      $(".meet-sidebar").hide();
+    });
+    $(document).on("click", ".sidebar-tab", function () {
+      var idx = $(this).index();
+      $(".sidebar-tab").removeClass("active");
+      $(this).addClass("active");
+      if(idx === 0) {
+        $(".sidebar-people").show();
+        $(".sidebar-chat").hide();
+      } else {
+        $(".sidebar-people").hide();
+        $(".sidebar-chat").show();
+      }
+    });
+    // Leave button (end call)
+    $(document).on("click", ".meet-control-btn.end-call", function () {
+      $("body").append('<div class="top-box-show" style="display:block;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:9999;"> <div class="top-box align-vertical-middle profile-dialogue-show" style="margin:10% auto 0 auto;max-width:400px;background:#181c20;padding:32px 24px;border-radius:12px;box-shadow:0 2px 16px #000;"> <h4 class="mt-3 " style="text-align:center;color:white">Leave Meeting</h4><hr> <div class="call-leave-cancel-action d-flex justify-content-center align-items-center w-100"> <a href="/action.html"><button class="call-leave-action btn btn-danger mr-5 ">Leave</button></a> <button class="call-cancel-action btn btn-secondary">Cancel</button> </div> </div></div>');
+    });
+    $(document).on("click", ".call-cancel-action", function () {
+      $(".top-box-show").remove();
+    });
+    $(document).on("mouseup", function (e) {
+      var container = $(".top-box-show");
+      if (!container.is(e.target) && container.has(e.target).length === 0) {
+        container.remove();
+      }
+    });
+    // Remove old handler that opened all .g-details popups on any 'Meeting details' button click
+    // Only the left and right controls open their respective popups (see above)
+    // Attachment popup (bottom left)
+    $(document).on("click", ".g-details-heading-attachment", function () {
+      $(".g-details-heading-show").hide();
+      $(".g-details-heading-show-attachment").show();
+      $(this).addClass("active");
+      $(".g-details-heading-detail").removeClass("active");
+    });
+    $(document).on("click", ".g-details-heading-detail", function () {
+      $(".g-details-heading-show").show();
+      $(".g-details-heading-show-attachment").hide();
+      $(this).addClass("active");
+      $(".g-details-heading-attachment").removeClass("active");
+    });
+    // Chat send on button click or Enter key
+    function sendChatMessage() {
       var msgdata = $("#msgbox").val();
-      socket.emit("sendMessage", $("#msgbox").val());
+      if (!msgdata.trim()) return;
+      socket.emit("sendMessage", msgdata);
       var time = new Date();
       var lTime = time.toLocaleString("en-US", {
         hour: "numeric",
@@ -477,10 +563,18 @@ var MyApp = (function () {
       );
       $("#messages").append(div);
       $("#msgbox").val("");
+    }
+    $("#btnsend").on("click", sendChatMessage);
+    $(document).on("keydown", "#msgbox", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
     });
+    // Meeting URL
     var url = window.location.href;
     $(".meeting_url").text(url);
-
+    // Double click video fullscreen
     $("#divUsers").on("dblclick", "video", function () {
       this.requestFullscreen();
     });

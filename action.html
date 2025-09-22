@@ -3,41 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create or Join meeting</title>
-    <link rel="stylesheet" href="public/Assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="public/Assets/css/style.css">
+    <title>LetsConnect</title>
+        <link rel="stylesheet" href="public/Assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="public/Assets/css/style.css">
+        <style>
+            body, h1, h2, h3, h4, h5, h6, .navbar, .btn, input, .nav-link {
+                font-family: 'Roboto', Arial, sans-serif !important;
+            }
+        </style>
 </head>
 <body style="padding-top: 3.5rem;">
-    <nav class="navbar navbar-expand-md fixed-top">
-        <img src="public/Assets/images/google-meet-icon.png" class="logo" alt="">
-        <a href="#" class="navbar-brand text-dark">Google Meet</a>
+    <nav class="navbar navbar-expand-md fixed-top" style="background: #1a2233; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <a href="#" class="navbar-brand font-weight-bold" style="color: #00bfae; font-size: 2rem; letter-spacing: 1px;">Let'sConnect</a>
         <div class="collapse navbar-collapse">
-            <!-- ///////// -->
-            <ul class="navbar-nav mr-auto">
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a href="#" class="nav-link">At a glance</a>
+                    <button class="btn btn-outline-light btn-lg font-weight-bold join-meeting" style="border-color: #00bfae; color: #00bfae;">Join the meeting</button>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">How it works</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">Plan and prices</a>
+                    <button class="btn btn-lg font-weight-bold new-meeting" style="background: #00bfae; color: #fff; margin-left: 10px;">Start a meeting</button>
                 </li>
             </ul>
-            <!-- ///// -->
-            <ul class="navbar-nav mr-0">
-                <li class="nav-item sign-in display-center ">
-                    <a href="#" class="nav-link">Sign in</a>
-                </li>
-                <li class="nav-item">
-                    <button class="btn btn-outline-secondary btn-lg text-info font-weight-bold join-meeting">Join the meeting</button>
-                </li>
-                <li class="nav-item">
-                    <button class="btn  btn-lg btn-info text-light font-weight-bold new-meeting">Start a meeting</button>
-                </li>
-            </ul>
-            <!-- ////////// -->
         </div>
     </nav>
     <main>
@@ -49,13 +37,13 @@
                 </p>
                 <ul class="display-center justify-content-start">
                     <li style="padding: 0;">
-                        <button class="btn btn-lg text-light font-weight-bold display-center new-meeting" style="background-color:#01796b ;" ><span class="material-icons mr-2">video_call</span>
+                        <button class="btn btn-lg font-weight-bold display-center new-meeting" style="background-color:#00bfae; color:#fff;"><span class="material-icons mr-2">video_call</span>
                             New Meeting
                         </button>
                     </li>
                     <li class="pl-3">
-                        <button class="btn btn-lg btn-outline-secondary text-dark font-weight-bold display-center" style="background-color:#ffffff ;" ><span class="material-icons mr-2">keyboard</span>
-                            <input type="text" placeholder="Enter a code" style="border: none; " class="enter-code">
+                        <button class="btn btn-lg btn-outline-light font-weight-bold display-center" style="background-color:#fff; color:#00bfae; border-color:#00bfae;"><span class="material-icons mr-2" style="color:#00bfae;">keyboard</span>
+                            <input type="text" placeholder="Enter a code" style="border: none; color:#222; background:transparent;" class="enter-code">
                         </button>
                     </li>
                      <li  class="text-dark pl-3 font-weight-bold cursor-pointer join-action">Join</li>
@@ -67,7 +55,7 @@
         </div>
     </main>
     <footer class="container">
-        <h6>Learn more about <span class="learn-more text-info">google meet</span></h6>
+    <h6>Learn more about <span class="learn-more text-info">Let'sConnect</span></h6>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             $(function(){
