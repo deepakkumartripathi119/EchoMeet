@@ -19,10 +19,6 @@
                 background-color: #fff8e1 !important; /* light orange */
                 color: #ff9800 !important;
             }
-            .new-meeting:hover, .new-meeting:focus {
-                background-color: #1976D2 !important; /* darker blue */
-                box-shadow: none !important;
-            }
         </style>
 </head>
 <body style="padding-top: 3.5rem;">
@@ -36,7 +32,7 @@
                     <button class="btn btn-outline-secondary btn-lg font-weight-bold join-meeting" style="border-color: #ff9800; color: #ff9800;">Join the meeting</button>
                 </li>
                 <li class="nav-item">
-                    <button class="btn btn-lg font-weight-bold new-meeting" style="background: #2196F3; color: #fff; margin-left: 10px;">Start a meeting</button>
+                    <button class="btn btn-lg font-weight-bold new-meeting" style="margin-left: 10px;">Start a meeting</button>
                 </li>
             </ul>
         </div>
@@ -50,7 +46,7 @@
                 </p>
                 <ul class="display-center justify-content-start">
                     <li style="padding: 0;">
-                        <button class="btn btn-lg font-weight-bold display-center new-meeting" style="background-color:#2196F3; color:#fff;"><span class="material-icons mr-2">video_call</span>
+                        <button class="btn btn-lg font-weight-bold display-center new-meeting"><span class="material-icons mr-2">video_call</span>
                             New Meeting
                         </button>
                     </li>
@@ -76,13 +72,18 @@
                     $(".enter-code").focus();
                 })
                 $(document).on("click",".join-action",function(){
-                    var join_value=$('.enter-code').val();
-                    var meetingUrl=window.location.origin+"?meetingID="+join_value;
+                    const join_value = $('.enter-code').val().trim();
+                    if (!join_value) {
+                        alert("Please enter a meeting code to join.");
+                        $('.enter-code').focus();
+                        return;
+                    }
+                    const meetingUrl = window.location.origin + "?meetingID=" + join_value;
                     window.location.replace(meetingUrl);
                 })  
                 $(document).on("click",".new-meeting",function(){
-                   var eight_d_value=Math.floor(Math.random()*100000000);
-                    var meetingUrl=window.location.origin+"?meetingID="+eight_d_value;
+                    const eight_d_value = Math.floor(Math.random() * 100000000);
+                    const meetingUrl = window.location.origin + "?meetingID=" + eight_d_value;
                     window.location.replace(meetingUrl);
                 })
             })

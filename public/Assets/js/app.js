@@ -138,7 +138,7 @@ var AppProcess = (function () {
   async function videoProcess(newVideoState) {
     if (newVideoState == video_states.None) {
       $("#videoCamOnOff").html(
-        "<span class='material-icons' ;`>videocam_off</span>"
+        "<span class='material-icons'>videocam_off</span>"
       );
 
       $("#ScreenShareOnOff").html(
@@ -146,13 +146,9 @@ var AppProcess = (function () {
       ).css("color", "");
 
       video_st = newVideoState;
+      $("#me").removeClass("camera-on");
       removeVideoStream(rtp_vid_senders);
       return;
-    }
-    if (newVideoState == video_states.Camera) {
-      $("#videoCamOnOff").html(
-        "<span class='material-icons' ;`>videocam_on</span>"
-      );
     }
 
     try {
@@ -195,6 +191,7 @@ var AppProcess = (function () {
 
     video_st = newVideoState;
     if (newVideoState == video_states.Camera) {
+      $("#me").addClass("camera-on");
       $("#videoCamOnOff").html(
         '<span class="material-icons" style="width: 100%;">videocam</span>'
       );
@@ -202,6 +199,7 @@ var AppProcess = (function () {
         '<span class="material-icons ">present_to_all</span>'
       ).css("color", "");
     } else if (newVideoState == video_states.ScreenShare) {
+      $("#me").removeClass("camera-on");
       $("#ScreenShareOnOff").html(
         '<span class="material-icons">present_to_all</span>'
       ).css("color", "#2196F3");
@@ -247,6 +245,14 @@ var AppProcess = (function () {
           .getVideoTracks()
           .forEach((t) => remote_vid_stream[connid].removeTrack(t));
         remote_vid_stream[connid].addTrack(event.track);
+
+        // Check if the track is from a camera or a screen share
+        const settings = event.track.getSettings();
+        if (settings.displaySurface) { // displaySurface is only present for screen shares
+          $("#" + connid).removeClass("camera-on");
+        } else { // Assumed to be a camera if not a screen share
+          $("#" + connid).addClass("camera-on");
+        }
         var remoteVideoPlayer = document.getElementById("v_" + connid);
         remoteVideoPlayer.srcObject = null;
         remoteVideoPlayer.srcObject = remote_vid_stream[connid];

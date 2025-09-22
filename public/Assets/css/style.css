@@ -227,6 +227,11 @@ textarea:focus,input:focus{
     border: none;
     border-radius: 0;
 }
+/* Mirror camera video for a more natural self-view, but not for screen sharing */
+.userbox.camera-on video {
+    transform: scaleX(-1);
+}
+
 .userbox .user-mic-icon {
     position: absolute;
     bottom: 8px;
@@ -499,4 +504,14 @@ textarea:focus,input:focus{
     margin-bottom: 132px;
     /* width: 180px; */
     display: none;
+}
+
+.new-meeting {
+    background-color: #2196F3 !important;
+    color: white !important;
+}
+.new-meeting:hover, .new-meeting:focus {
+    background-color: #1976D2 !important; /* darker blue */
+    box-shadow: none !important;
+    color: white !important;
 }
