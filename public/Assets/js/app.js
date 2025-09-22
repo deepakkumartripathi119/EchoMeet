@@ -376,14 +376,17 @@ var MyApp = (function () {
   function updateVideoLayout() {
     setTimeout(() => {
         var participants = $(".userbox:visible").length;
+        console.log("participant",participants);
         if (participants > 0) {
+          
             let gridClass = "grid-1";
-            if (participants == 2) gridClass = "grid-2";
+            if (participants == 1) gridClass = "grid-1";
+            else if (participants == 2) gridClass = "grid-2";
             else if (participants <= 4) gridClass = "grid-4";
             else if (participants <= 6) gridClass = "grid-6";
             else if (participants <= 9) gridClass = "grid-9";
             else gridClass = "grid-gt9";
-
+            console.log(gridClass);
             $(".video-grid").removeClass ( (index, css) => {
                 return (css.match (/(^|\s)grid-\S+/g) || []).join(' ');
             }).addClass(gridClass);

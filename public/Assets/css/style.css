@@ -152,12 +152,15 @@ textarea:focus,input:focus{
 .meet-video-area {
     flex: 1 1 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
     background: #181c20;
-    min-height: 0; /* Important fix for flexbox overflow */
+    min-height: 0;
     position: relative;
     overflow: hidden;
+}
+
+#meetingContainer {
+    width: 100%;
+    height: 100%;
 }
 
 /* --- DYNAMIC GRID LAYOUT --- */
@@ -176,25 +179,22 @@ textarea:focus,input:focus{
 .video-grid.grid-gt9 { grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr 1fr; }
 
 
+/* FIX: Simplified the userbox layout to prevent overflow */
 .userbox {
     background: #000;
     position: relative;
     overflow: hidden;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
     border: 1px solid #3d4145;
     box-sizing: border-box;
 }
+
 .userbox > div {
     width: 100%;
-    flex-grow: 1;
-    min-height: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 100%;
 }
+
 .userbox h2 {
     position: absolute;
     top: 8px;
