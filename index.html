@@ -4,15 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LetsConnect</title>
+    <!-- Using the provided bootstrap.min.css -->
     <link rel="stylesheet" href="public/Assets/css/bootstrap.min.css" />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
     />
+    <!-- Using the provided style.css -->
     <link rel="stylesheet" href="public/Assets/css/style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
-    <script src="public/Assets/js/jquery-3.4.1.min.js"></script>
+    <!-- Using jQuery from a CDN to resolve loading issues -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <!-- Using the provided app.js -->
     <script src="public/Assets/js/app.js"></script>
     <script>
       $(function () {
@@ -21,7 +25,8 @@
         var user_id = window.prompt("enter the userid");
         if (!user_id || !meeting_id) {
           alert("User id or meeting id missing");
-          window.location.href = "/action.html";
+          // Using an absolute path to prevent URL errors in certain environments
+          window.location.href = window.location.origin + "/action.html";
           return;
         }
         $("#meetingContainer").show();
@@ -35,7 +40,6 @@
       <header class="meet-header">
         <div class="meet-logo">Let'sConnect</div>
         <div class="meet-header-actions">
-          <!-- <button class="meet-header-btn" title="Meeting details"><span class="material-icons">info</span></button> -->
           <button class="meet-header-btn" title="People"><span class="material-icons">people</span></button>
           <button class="meet-header-btn" title="Chat"><span class="material-icons">message</span></button>
         </div>
@@ -43,8 +47,10 @@
       <div class="meet-content">
         <div class="meet-video-area">
           <div id="meetingContainer" style="display: none;">
+            <!-- The video-grid will now be controlled by new CSS and JS for dynamic layouts -->
             <div class="video-grid" id="divUsers">
               <div id="me" class="userbox flex-column">
+                <!-- The h2 will be styled as a user ID badge -->
                 <h2 style="font-size: 14px"></h2>
                 <div>
                   <video autoplay muted id="localVideoPlayer"></video>
@@ -98,9 +104,8 @@
           <button class="meet-control-btn" id="videoCamOnOff" title="Camera on/off"><span class="material-icons">videocam_off</span></button>
         </div>
         <div class="controls-right">
-          <button class="meet-control-btn" id="ScreenShareOnOff" title="Present now"><span class="material-icons">present_to_all</span></button>
+          <button class="meet-control-btn" id="ScreenShareOnOff" title=""><span class="material-icons">present_to_all</span></button>
           <button class="meet-control-btn" id="attachmentBtn" title="Attachments"><span class="material-icons">attach_file</span></button>
-          <button class="meet-control-btn" title="More options"><span class="material-icons">more_vert</span></button>
         </div>
       </footer>
     <!-- Attachment popup (bottom right, for attachments only) -->
@@ -139,6 +144,7 @@
       </div>
     </div>
     </main>
-    </main>
   </body>
 </html>
+
+

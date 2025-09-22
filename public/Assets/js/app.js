@@ -132,11 +132,11 @@ var AppProcess = (function () {
   async function videoProcess(newVideoState) {
     if (newVideoState == video_states.None) {
       $("#videoCamOnOff").html(
-        "<span class='material-icons' style=`width: 100%;`>videocam_off</span>"
+        "<span class='material-icons' ;`>videocam_off</span>"
       );
 
       $("#ScreenShareOnOff").html(
-        '<span class="material-icons">present_to_all</span><div>Present Now</div>'
+        '<span class="material-icons">present_to_all</span>'
       );
 
       video_st = newVideoState;
@@ -145,7 +145,7 @@ var AppProcess = (function () {
     }
     if (newVideoState == video_states.Camera) {
       $("#videoCamOnOff").html(
-        "<span class='material-icons' style=`width: 100%;`>videocam_on</span>"
+        "<span class='material-icons' ;`>videocam_on</span>"
       );
     }
 
@@ -170,7 +170,7 @@ var AppProcess = (function () {
         vstream.oninactive = (e) => {
           removeVideoStream(rtp_vid_senders);
           $("#ScreenShareOnOff").html(
-            '<span class="material-icons ">present_to_all</span><div > Present Now</div>'
+            '<span class="material-icons ">present_to_all</span>'
           );
         };
       }
@@ -193,11 +193,11 @@ var AppProcess = (function () {
         '<span class="material-icons" style="width: 100%;">videocam</span>'
       );
       $("#ScreenShareOnOff").html(
-        '<span class="material-icons ">present_to_all</span><div > Present Now</div>'
+        '<span class="material-icons ">present_to_all</span>'
       );
     } else if (newVideoState == video_states.ScreenShare) {
       $("#ScreenShareOnOff").html(
-        '<span class="material-icons text-success">present_to_all</span><div class="text-success">Stop Present Now</div>'
+        '<span class="material-icons text-success">present_to_all</span>'
       );
       $("#videoCamOnOff").html(
         '<span class="material-icons" style="width: 100%;">videocam_off</span>'
@@ -368,33 +368,40 @@ var MyApp = (function () {
   function init(uid, mid) {
     user_id = uid;
     meeting_id = mid;
-    $("meetingContainer").show();
     $("#me h2").text(user_id + "(Me)");
     document.title = user_id;
     event_process_for_signaling_server();
     eventHandeling();
   }
+  function updateVideoLayout() {
+    setTimeout(() => {
+        var participants = $(".userbox:visible").length;
+        if (participants > 0) {
+            let gridClass = "grid-1";
+            if (participants == 2) gridClass = "grid-2";
+            else if (participants <= 4) gridClass = "grid-4";
+            else if (participants <= 6) gridClass = "grid-6";
+            else if (participants <= 9) gridClass = "grid-9";
+            else gridClass = "grid-gt9";
+
+            $(".video-grid").removeClass ( (index, css) => {
+                return (css.match (/(^|\s)grid-\S+/g) || []).join(' ');
+            }).addClass(gridClass);
+        }
+    }, 100);
+  }
 
   function event_process_for_signaling_server() {
         socket = io.connect();
-        // The client side automatically connects to server side as both are served through same domain and port.
-    // socket = io.connect("http://localhost:3000");
-
-     
-
     var SDP_function = function (data, to_connid) {
       socket.emit("SDPProcess", {
         message: data,
         to_connid: to_connid,
       });
     };
-//In the context of Socket.IO, the "connect" event is emitted by the client-side Socket.IO library itself when the client successfully establishes a connection with the server.
     socket.on("connect", () => {
-      console.log(socket);
-      alert("socket connected to client side");
       if (socket.connected) {
         AppProcess.init(SDP_function, socket.id);
-        console.log(socket.connected);
         if (user_id != "" && meeting_id != "") {
           socket.emit("userconnect", {
             displayName: user_id,
@@ -402,18 +409,20 @@ var MyApp = (function () {
           });
         }
       }
+      updateVideoLayout();
     });
 
     socket.on("inform_other_about_disconnected_user", function (data) {
       $("#" + data.connId).remove();
-      $(".participant-count").text(data.uNumber);
-      $("#participant_" + data.connId + "").remove();
+      $("#participant_" + data.connId).remove();
       AppProcess.closeConnectionCall(data.connId);
+      updateVideoLayout();
     });
 
     socket.on("inform_others_about_me", function (data) {
-      addUser(data.other_user_id, data.connId, data.userNumber);
+      addUser(data.other_user_id, data.connId);
       AppProcess.setNewConnection(data.connId);
+      updateVideoLayout();
     });
     socket.on("showFileMessage",function(data){
         var time=new Date();
@@ -426,18 +435,16 @@ var MyApp = (function () {
         attachFileAreaForOther.innerHTML+="<div class='left-align' style='display:flex;align-items:center;'><img src='public/assets/images/other.jpg' style='height:40px;width:40px;' class='caller-image circle'><div style='font-weight:600;margin:0 5px'>"+data.username+"</div>:<div><a style='color:#007bff;' href='"+data.filePath+"' download>"+data.fileName+"</a></div></div><br/>"
     });
     socket.on("inform_me_about_other_user", function (other_users){
-      var userNumber = other_users.length;
-      var userNumb = userNumber + 1;
       if (other_users) {
         for (var i = 0; i < other_users.length; i++) {
           addUser(
             other_users[i].user_id,
-            other_users[i].connectionId,
-            userNumb
+            other_users[i].connectionId
           );
           AppProcess.setNewConnection(other_users[i].connectionId);
         }
       }
+      updateVideoLayout();
     });
     socket.on("SDPProcess", async function (data) {
       await AppProcess.processClientFunc(data.message, data.from_connid);
@@ -462,19 +469,16 @@ var MyApp = (function () {
   }
 
   function eventHandeling() {
-    // Attachment button in bottom right opens only the attachment popup
     $(document).on("click", "#attachmentBtn", function (e) {
       e.stopPropagation();
       $("#attachmentPopup").toggle();
       $("#meetingDetailsPopup").hide();
     });
-    // Meeting details button in bottom left opens only the meeting details popup
     $(document).on("click", ".controls-left .meet-control-btn[title='Meeting details']", function (e) {
       e.stopPropagation();
       $("#meetingDetailsPopup").toggle();
       $("#attachmentPopup").hide();
     });
-    // Hide popups if click outside
     $(document).mouseup(function (e) {
       var attach = $("#attachmentPopup");
       var meet = $("#meetingDetailsPopup");
@@ -485,8 +489,6 @@ var MyApp = (function () {
         meet.hide();
       }
     });
-    // --- New UI wiring for Let'sConnect Google Meet-like layout ---
-    // Sidebar open/close
     $(document).on("click", ".meet-header-btn[title='People']", function () {
       $(".meet-sidebar").show();
       $(".sidebar-people").show();
@@ -514,7 +516,6 @@ var MyApp = (function () {
         $(".sidebar-chat").show();
       }
     });
-    // Leave button (end call)
     $(document).on("click", ".meet-control-btn.end-call", function () {
       $("body").append('<div class="top-box-show" style="display:block;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:9999;"> <div class="top-box align-vertical-middle profile-dialogue-show" style="margin:10% auto 0 auto;max-width:400px;background:#181c20;padding:32px 24px;border-radius:12px;box-shadow:0 2px 16px #000;"> <h4 class="mt-3 " style="text-align:center;color:white">Leave Meeting</h4><hr> <div class="call-leave-cancel-action d-flex justify-content-center align-items-center w-100"> <a href="/action.html"><button class="call-leave-action btn btn-danger mr-5 ">Leave</button></a> <button class="call-cancel-action btn btn-secondary">Cancel</button> </div> </div></div>');
     });
@@ -527,9 +528,7 @@ var MyApp = (function () {
         container.remove();
       }
     });
-    // Remove old handler that opened all .g-details popups on any 'Meeting details' button click
-    // Only the left and right controls open their respective popups (see above)
-    // Attachment popup (bottom left)
+    
     $(document).on("click", ".g-details-heading-attachment", function () {
       $(".g-details-heading-show").hide();
       $(".g-details-heading-show-attachment").show();
@@ -542,7 +541,6 @@ var MyApp = (function () {
       $(this).addClass("active");
       $(".g-details-heading-attachment").removeClass("active");
     });
-    // Chat send on button click or Enter key
     function sendChatMessage() {
       var msgdata = $("#msgbox").val();
       if (!msgdata.trim()) return;
@@ -571,16 +569,14 @@ var MyApp = (function () {
         sendChatMessage();
       }
     });
-    // Meeting URL
     var url = window.location.href;
     $(".meeting_url").text(url);
-    // Double click video fullscreen
     $("#divUsers").on("dblclick", "video", function () {
       this.requestFullscreen();
     });
   }
 
-  function addUser(other_user_id, connId, userNum) {
+  function addUser(other_user_id, connId) {
     var newDivId = $("#otherTemplate").clone();
     newDivId = newDivId.attr("id", connId).addClass("other");
     newDivId.find("h2").text(other_user_id);
@@ -588,14 +584,14 @@ var MyApp = (function () {
     newDivId.find("audio").attr("id", "a_" + connId);
     newDivId.show();
     $("#divUsers").append(newDivId);
-    $(".in-call-wrap-up").append(
-      '<div class="in-call-wrap d-flex justify-content-between align-items-center mb-3" id="participant_' +
-        connId +
-        '"> <div class="participant-name-wrap display-center cursor-pointer"> <div class="participant-img"> <img src="public/Assets/images/other.jpg" alt="" class="border border-secondary" style="height:40px ;width: 40px;border-radius: 50%;"> </div> <div class="participant-name ml-2">' +
-        other_user_id +
-        '</div> </div> <div class="participant-action-wrap display-center "> <div class="participant-action-dot display-center mr-2 cursor-pointer"> <span class="material-icons">more_vert</span> </div> <div class="participant-action-pin display-center mr-2 cursor-pointer"> <span class="material-icons">push_pin</span> </div> </div> </div>'
-    );
-    $(".participant-count").text(userNum);
+    
+    var participantHtml = `
+      <div class="participant" id="participant_${connId}">
+        <img src="public/Assets/images/other.jpg" alt="" class="participant-img">
+        <span class="participant-name">${other_user_id}</span>
+      </div>
+    `;
+    $(".participant-list").append(participantHtml);
   }
 
   $(document).on("click", ".people-heading", function () {
@@ -793,3 +789,4 @@ var MyApp = (function () {
     },
   };
 })();
+
