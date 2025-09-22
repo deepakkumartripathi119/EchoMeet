@@ -45,7 +45,7 @@
 /* --- End Popup Card Redesign --- */
 
 body{
-    font-family: roboto,lato !important;
+    font-family: "Alan Sans", sans-serif !important;
     font-size: large;
 }
 ul{
@@ -60,7 +60,7 @@ ul{
 .navbar-brand{
     font-size: 27px;
     padding-left: 10px;
-    font-family: 'Lato';
+    font-family: "Alan Sans", sans-serif;
 }
 
 .nav-item a{
@@ -117,14 +117,15 @@ textarea:focus,input:focus{
     background: #fff;
     border-bottom: 1px solid #e0e0e0;
     padding: 0 32px;
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: "Alan Sans", sans-serif;
     z-index: 10;
     flex-shrink: 0; /* Prevent header from shrinking */
 }
 .meet-logo {
+    display: flex;
+    align-items: center;
     font-size: 1.6rem;
     font-weight: 700;
-    color: #008080;
     letter-spacing: 1px;
 }
 .meet-header-actions {
@@ -446,11 +447,11 @@ textarea:focus,input:focus{
     top: 20.5%;
     left: 35.5%;
     display: block;
-    box-shadow: 0 0 5px white;
+    box-shadow: 0 0 5px rgb(0, 0, 0);
     border-radius: 10px;
     z-index: 999;
     columns: white;
-    border: 2px solid white;
+    /* border: 2px solid rgb(14, 14, 14); */
 }
 .bottom-left{
     position: relative;
@@ -477,4 +478,3 @@ textarea:focus,input:focus{
     /* width: 180px; */
     display: none;
 }
-

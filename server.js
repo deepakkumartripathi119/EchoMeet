@@ -14,6 +14,16 @@ const io=require("socket.io")(server,{
 });
 
 app.use(express.static(path.join(__dirname,"")));
+app.get("/", (req, res, next) => {
+    if (req.query.meetingID) {
+        // Request is to join a meeting, so let the static server handle it
+        // and serve the main meeting page (index.html).
+        return next();
+    }
+    // Request is for the root, so redirect to the landing page.
+    res.redirect("/action.html");
+});
+
 // console.log(__dirname);
 // express.static serves the static files(html,css,javascript files) from the ""(root) directory. 
  
@@ -126,12 +136,3 @@ app.post("/attachimg",function(req,res){
         }
     })
 })
-
-
-
-
-
-
-
-
-
