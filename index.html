@@ -57,6 +57,7 @@
             <div class="video-grid" id="divUsers">
               <div id="me" class="userbox flex-column">
                 <!-- The h2 will be styled as a user ID badge -->
+                <span class="material-icons user-mic-icon">mic_off</span>
                 <h2 style="font-size: 14px"></h2>
                 <div>
                   <video autoplay muted id="localVideoPlayer"></video>
@@ -64,6 +65,7 @@
               </div>
               <div id="otherTemplate" class="userbox flex-column" style="display: none">
                 <h2 style="font-size: 14px"></h2>
+                <span class="material-icons user-mic-icon">mic_off</span>
                 <div>
                   <video autoplay muted></video>
                   <audio autoplay controls style="display: none"></audio>
@@ -116,8 +118,8 @@
       </footer>
     <!-- Attachment popup (bottom right, for attachments only) -->
     <div class="g-details attachment-popup-card" id="attachmentPopup" style="display:none;position:fixed;bottom:90px;right:40px;min-width:340px;max-width:400px;z-index:1000;background:#fff;box-shadow:0 4px 24px 0 rgba(0,0,0,0.18);border-radius:16px;padding:0 0 18px 0;">
-      <div class="popup-header d-flex align-items-center px-4 pt-3 pb-2 border-bottom">
-        <span class="material-icons mr-2" style="color:#008080;font-size:2rem;">attach_file</span>
+      <div class="popup-header d-flex align-items-center px-4 pt-3 pb-2">
+        <span class="material-icons mr-2">attach_file</span>
         <span style="font-weight:600;font-size:1.1rem;">Attachments</span>
       </div>
       <div class="px-4 pt-3">
@@ -135,8 +137,8 @@
     </div>
     <!-- Meeting details popup (bottom left, for joining info only) -->
     <div class="g-details meeting-link-popup-card" id="meetingDetailsPopup" style="display:none;position:fixed;bottom:90px;left:40px;min-width:340px;max-width:400px;z-index:1000;background:#fff;box-shadow:0 4px 24px 0 rgba(0,0,0,0.18);border-radius:16px;padding:0 0 18px 0;">
-      <div class="popup-header d-flex align-items-center px-4 pt-3 pb-2 border-bottom">
-        <span class="material-icons mr-2" style="color:#008080;font-size:2rem;">info</span>
+      <div class="popup-header d-flex align-items-center px-4 pt-3 pb-2">
+        <span class="material-icons mr-2">info</span>
         <span style="font-weight:600;font-size:1.1rem;">Meeting Details</span>
       </div>
       <div class="px-4 pt-3">
@@ -145,7 +147,7 @@
         <button class="btn btn-outline-primary btn-sm copy_info d-flex align-items-center" style="gap:6px;">
           <span class="material-icons" style="font-size: 18px;">content_copy</span>
           <span>Copy Joining Info</span>
-          <span class="link-conf font-weight-bold ml-2" style="display: none; background-color: aquamarine;border-radius:5px;padding:2px 8px;">Link Copied</span>
+          <span class="link-conf font-weight-bold ml-2" style="display: none; background-color: #e3f2fd; color: #1976D2; border-radius:5px;padding:2px 8px;">Link Copied</span>
         </button>
       </div>
     </div>

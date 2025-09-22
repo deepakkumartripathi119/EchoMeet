@@ -4,6 +4,7 @@ var AppProcess = (function () {
   var remote_vid_stream = [];
   var remote_aud_stream = [];
   var local_div;
+  var _socket;
   var serverProcess;
   var audio;
   var isAudioMute = true;
@@ -17,9 +18,10 @@ var AppProcess = (function () {
   var videoCamTrack;
   var rtp_vid_senders = [];
 
-  async function _init(SDP_function, my_connid) {
+  async function _init(SDP_function, my_connid, socket) {
     serverProcess = SDP_function;
     my_connection_id = my_connid;
+    _socket = socket;
     eventProcess();
     local_div = document.getElementById("localVideoPlayer");
   }
@@ -37,15 +39,19 @@ var AppProcess = (function () {
       if (isAudioMute) {
         audio.enabled = true;
         // Show mic icon (unmuted)
+        $("#me .user-mic-icon").text("mic");
         $(this).find(".material-icons").text("mic");
         // Add audio track to all connections
         updateMediaSenders(audio, rtp_aud_senders);
+        _socket.emit("audioMute", { isMuted: false });
       } else {
         audio.enabled = false;
         // Show mic_off icon (muted)
+        $("#me .user-mic-icon").text("mic_off");
         $(this).find(".material-icons").text("mic_off");
         // Remove audio track from all connections
         updateMediaSenders(null, rtp_aud_senders);
+        _socket.emit("audioMute", { isMuted: true });
       }
       isAudioMute = !isAudioMute;
     });
@@ -137,7 +143,7 @@ var AppProcess = (function () {
 
       $("#ScreenShareOnOff").html(
         '<span class="material-icons">present_to_all</span>'
-      );
+      ).css("color", "");
 
       video_st = newVideoState;
       removeVideoStream(rtp_vid_senders);
@@ -171,7 +177,7 @@ var AppProcess = (function () {
           removeVideoStream(rtp_vid_senders);
           $("#ScreenShareOnOff").html(
             '<span class="material-icons ">present_to_all</span>'
-          );
+          ).css("color", "");
         };
       }
 
@@ -194,11 +200,11 @@ var AppProcess = (function () {
       );
       $("#ScreenShareOnOff").html(
         '<span class="material-icons ">present_to_all</span>'
-      );
+      ).css("color", "");
     } else if (newVideoState == video_states.ScreenShare) {
       $("#ScreenShareOnOff").html(
-        '<span class="material-icons text-success">present_to_all</span>'
-      );
+        '<span class="material-icons">present_to_all</span>'
+      ).css("color", "#2196F3");
       $("#videoCamOnOff").html(
         '<span class="material-icons" style="width: 100%;">videocam_off</span>'
       );
@@ -349,8 +355,8 @@ var AppProcess = (function () {
     setNewConnection: async function (connid) {
       await setConnection(connid);
     },
-    init: async function (SDP_function, my_connid) {
-      await _init(SDP_function, my_connid);
+    init: async function (SDP_function, my_connid, socket) {
+      await _init(SDP_function, my_connid, socket);
     },
     processClientFunc: async function (data, from_connid) {
       await SDPProcess(data, from_connid);
@@ -404,7 +410,7 @@ var MyApp = (function () {
     };
     socket.on("connect", () => {
       if (socket.connected) {
-        AppProcess.init(SDP_function, socket.id);
+        AppProcess.init(SDP_function, socket.id, socket);
         if (user_id != "" && meeting_id != "") {
           socket.emit("userconnect", {
             displayName: user_id,
@@ -423,7 +429,7 @@ var MyApp = (function () {
     });
 
     socket.on("inform_others_about_me", function (data) {
-      addUser(data.other_user_id, data.connId);
+      addUser(data.other_user_id, data.connId, data.isMuted);
       AppProcess.setNewConnection(data.connId);
       updateVideoLayout();
     });
@@ -441,8 +447,9 @@ var MyApp = (function () {
       if (other_users) {
         for (var i = 0; i < other_users.length; i++) {
           addUser(
-            other_users[i].user_id,
-            other_users[i].connectionId
+            other_users[i].user_id, 
+            other_users[i].connectionId,
+            other_users[i].isMuted
           );
           AppProcess.setNewConnection(other_users[i].connectionId);
         }
@@ -468,6 +475,13 @@ var MyApp = (function () {
           data.message
       );
       $("#messages").append(div);
+    });
+    socket.on("audioMute", function(data) {
+      if (data.isMuted) {
+          $("#" + data.connId).find(".user-mic-icon").text("mic_off");
+      } else {
+          $("#" + data.connId).find(".user-mic-icon").text("mic");
+      }
     });
   }
 
@@ -579,12 +593,17 @@ var MyApp = (function () {
     });
   }
 
-  function addUser(other_user_id, connId) {
+  function addUser(other_user_id, connId, isMuted) {
     var newDivId = $("#otherTemplate").clone();
     newDivId = newDivId.attr("id", connId).addClass("other");
     newDivId.find("h2").text(other_user_id);
     newDivId.find("video").attr("id", "v_" + connId);
     newDivId.find("audio").attr("id", "a_" + connId);
+    if (isMuted) {
+      newDivId.find(".user-mic-icon").text("mic_off");
+    } else {
+      newDivId.find(".user-mic-icon").text("mic");
+    }
     newDivId.show();
     $("#divUsers").append(newDivId);
     
@@ -792,4 +811,3 @@ var MyApp = (function () {
     },
   };
 })();
-

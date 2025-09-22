@@ -36,12 +36,13 @@ io.on("connection",(socket)=>{
     console.log("socket id is",socket.id);
     socket.on("userconnect",(data)=>{
         console.log("userconnect",data.displayName,data.meetingid);
-        var other_users=userConnections.filter(
+        var other_users = userConnections.filter(
             (p)=>p.meeting_id==data.meetingid);
         userConnections.push({
             connectionId:socket.id,
             user_id:data.displayName,
             meeting_id:data.meetingid,
+            isMuted: true,
         });
         var userCount=userConnections.length;
         console.log(userCount);
@@ -49,10 +50,13 @@ io.on("connection",(socket)=>{
             socket.to(v.connectionId).emit("inform_others_about_me",{
                 other_user_id:data.displayName,
                 connId:socket.id,
-                userNumber:userCount
+                userNumber:userCount,
+                isMuted: true,
             });
         });
-        socket.emit("inform_me_about_other_user",other_users);
+        // We fetch the list of users again to ensure the new user gets the most up-to-date mute status.
+        var updated_other_users = userConnections.filter((p) => p.meeting_id == data.meetingid && p.connectionId != socket.id);
+        socket.emit("inform_me_about_other_user", updated_other_users);
     });
     socket.on("SDPProcess",(data)=>{
         socket.to(data.to_connid).emit("SDPProcess",{
@@ -61,6 +65,22 @@ io.on("connection",(socket)=>{
         })
     })
 
+    socket.on("audioMute", (data) => {
+        var mUser = userConnections.find((p) => p.connectionId == socket.id);
+        if (mUser) {
+            mUser.isMuted = data.isMuted;
+            var meetingid = mUser.meeting_id;
+            var list = userConnections.filter((p) => p.meeting_id == meetingid);
+            list.forEach((v) => {
+                if (v.connectionId != socket.id) {
+                    socket.to(v.connectionId).emit("audioMute", {
+                        connId: socket.id,
+                        isMuted: data.isMuted
+                    });
+                }
+            });
+        }
+    });
     socket.on("sendMessage",(msg)=>{
         console.log("msg");
         var mUser=userConnections.find((p)=>p.connectionId==socket.id);
